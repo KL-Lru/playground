@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: base
+resources:
+- ns.yml
+- nginx.deploy.yml
+- nginx.svc.yml
+- psql.sts.yml
+- psql.svc.yml

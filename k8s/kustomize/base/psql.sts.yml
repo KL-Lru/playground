@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgresql
+spec:
+  replicas: 1
+  serviceName: postgresql-service
+  selector:
+    matchLabels:
+      app: postgresql
+  template:
+    metadata:
+      labels:
+        app: postgresql
+    spec:
+      containers:
+      - image: postgres:13.3
+        name: postgresql
+        env:
+        - name: POSTGRES_PORT_NUMBER
+          valueFrom:
+            secretKeyRef:
+              key: postgresql-port
+              name: postgres-secret
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              key: postgresql-user
+              name: postgres-secret
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: postgresql-password
+              name: postgres-secret
+        - name: PGDATA
+          value: /data/pgdata
+        ports:
+        - containerPort: 5432
+          name: postgresql
+        volumeMounts:
+        - name: postgresql-pvc
+          mountPath: /data
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi  
+  volumeClaimTemplates:
+    - metadata: 
+        name: postgresql-pvc
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
